@@ -21,7 +21,8 @@ let isAssignmentTargetPattern = path => {
   return (
     path.isObjectPattern() ||
     path.isArrayPattern() ||
-    path.isRestElement()
+    path.isRestElement() ||
+    (path.isObjectProperty() && path.parentPath.isObjectPattern())
   );
 };
 
@@ -34,13 +35,13 @@ exports.getIdentifierKind = (path /*: Path */) /*: IdentifierKinds */ => {
     if (
       parentPath.isMemberExpression() &&
       parentKey === 'property' &&
-      !path.node.computed
+      !path.parent.computed
     ) {
       return 'static';
     }
 
     if (parentPath.isObjectProperty() && parentPath.parentPath.isObjectPattern()) {
-      if (parentKey === 'key') return 'binding';
+      if (parentKey === 'key') return 'static';
       if (parentKey === 'value') return 'binding';
     }
 
