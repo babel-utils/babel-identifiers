@@ -115,6 +115,22 @@ exports.getIdentifierKind = (path /*: Path */) /*: IdentifierKinds */ => {
     if (parentPath.isObjectTypeIndexer() && parentKey === 'id') {
       return 'static';
     }
+
+    if (parentPath.isTSInterfaceDeclaration() && parentKey === 'id') {
+      return 'binding';
+    }
+
+    if (parentPath.isTSEnumDeclaration() && parentKey === 'id') {
+      return 'binding';
+    }
+
+    if (parentPath.isTSTypeAliasDeclaration() && parentKey === 'id') {
+      return 'binding';
+    }
+
+    if (parentPath.isTSModuleDeclaration() && parentKey === 'id') {
+      return 'binding';
+    }
   }
 
   if (path.isTypeParameter()) {

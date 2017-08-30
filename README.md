@@ -22,4 +22,4 @@ import {getIdentifierKind} from 'babel-identifiers';
 getIdentifierKind(path); // "binding" | "reference" | "static"
 ```
 
-This should work for all identifiers, even those in Flow.
+This should work for all identifiers, even those in Flow or TypeScript.

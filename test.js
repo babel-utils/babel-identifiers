@@ -289,6 +289,51 @@ const TESTS = [{
   plugins: ['flow'],
   code: 'type a = { [b]: c }',
   result: ['a:binding', 'b:reference', 'c:reference'],
+}, {
+  name: 'ts interface',
+  plugins: ['typescript'],
+  code: 'interface a {}',
+  result: ['a:binding'],
+}, {
+  name: 'ts enum',
+  plugins: ['typescript'],
+  code: 'enum a {}',
+  result: ['a:binding'],
+}, {
+  name: 'ts alias',
+  plugins: ['typescript'],
+  code: 'type a = {}',
+  result: ['a:binding'],
+}, {
+  name: 'ts namespace',
+  plugins: ['typescript'],
+  code: 'namespace a {}',
+  result: ['a:binding'],
+}, {
+  name: 'ts module',
+  plugins: ['typescript'],
+  code: 'module a {}',
+  result: ['a:binding'],
+}, {
+  name: 'ts type param instantiation',
+  plugins: ['typescript'],
+  code: 'class a<b> {}',
+  result: ['a:binding', 'b:binding'],
+}, {
+  name: 'ts type param instantiation extends',
+  plugins: ['typescript'],
+  code: 'class a<b extends c> {}',
+  result: ['a:binding', 'b:binding', 'c:reference'],
+}, {
+  name: 'ts type param',
+  plugins: ['typescript'],
+  code: 'class a extends b<c> {}',
+  result: ['a:binding', 'b:reference', 'c:reference'],
+}, {
+  name: 'ts mapped type',
+  plugins: ['typescript'],
+  code: 'type a = { [b in keyof c]: d }',
+  result: ['a:binding', 'b:binding', 'c:reference', 'd:reference'],
 }];
 
 
