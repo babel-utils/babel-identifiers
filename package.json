@@ -6,7 +6,9 @@
   "repository": "babel-utils/babel-identifiers",
   "author": "James Kyle <me@thejameskyle.com>",
   "license": "MIT",
-  "files": [],
+  "files": [
+    "index.js"
+  ],
   "scripts": {
     "test": "jest"
   },
