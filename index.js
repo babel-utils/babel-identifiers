@@ -116,19 +116,19 @@ exports.getIdentifierKind = (path /*: Path */) /*: IdentifierKinds */ => {
       return 'static';
     }
 
-    if (parentPath.isTSInterfaceDeclaration() && parentKey === 'id') {
+    if (parentPath.type === 'TSInterfaceDeclaration' && parentKey === 'id') {
       return 'binding';
     }
 
-    if (parentPath.isTSEnumDeclaration() && parentKey === 'id') {
+    if (parentPath.type === 'TSEnumDeclaration' && parentKey === 'id') {
       return 'binding';
     }
 
-    if (parentPath.isTSTypeAliasDeclaration() && parentKey === 'id') {
+    if (parentPath.type === 'TSTypeAliasDeclaration' && parentKey === 'id') {
       return 'binding';
     }
 
-    if (parentPath.isTSModuleDeclaration() && parentKey === 'id') {
+    if (parentPath.type === 'TSModuleDeclaration' && parentKey === 'id') {
       return 'binding';
     }
   }
