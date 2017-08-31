@@ -1,6 +1,8 @@
 'use strict';
 const astPrettyPrint = require('ast-pretty-print');
 
+const {getTypeBinding} = require('babel-type-scopes');
+
 /*::
 type Node = {
   type: string,
@@ -13,9 +15,10 @@ type Path = {
   parent: Node,
   parentPath: Path,
   [key: string]: any,
-};
+}
 
 type IdentifierKinds = 'reference' | 'binding' | 'static';
+type IdentifierGrammars = 'javascript' | 'jsx' | 'flow' | 'typescript';
 */
 
 let isAssignmentTargetPattern = (parentPath, parentKey) => {
@@ -28,10 +31,18 @@ let isAssignmentTargetPattern = (parentPath, parentKey) => {
   );
 };
 
-exports.getIdentifierKind = (path /*: Path */) /*: IdentifierKinds */ => {
+function isIdentifierLike(path /*: Path */) /*: boolean */ {
+  return (
+    path.isIdentifier() ||
+    path.isTypeParameter() ||
+    path.type === 'TSTypeParameter' ||
+    path.isJSXIdentifier()
+  );
+}
+
+function getIdentifierKind(path /*: Path */) /*: IdentifierKinds */ {
   let parentPath = path.parentPath;
   let parentKey = path.parentKey;
-  let node = path.node;
 
 
   if (path.isIdentifier()) {
@@ -142,5 +153,57 @@ exports.getIdentifierKind = (path /*: Path */) /*: IdentifierKinds */ => {
     return 'binding';
   }
 
+  if (path.type === 'TSTypeParameter') {
+    return 'binding';
+  }
+
+  if (path.isJSXIdentifier()) {
+    if (parentPath.isJSXMemberExpression()) {
+      if (parentKey === 'property') {
+        return 'static';
+      }
+    } else {
+      let name = path.node.name;
+      if (name[0] === name[0].toLowerCase()) {
+        return 'static';
+      }
+    }
+  }
+
   return 'reference';
+}
+
+function getIdentifierGrammar(path /*: Path */) /*: IdentifierGrammars */ {
+  let parentPath = path.parentPath;
+  let parentKey = path.parentKey;
+
+  if (path.isTypeParameter()) {
+    if (parentPath.isTypeParameterDeclaration()) return 'flow';
+    if (parentPath.type === 'TSMappedType') return 'typescript';
+    throw new Error(`Unhandled TypeParameter parent type: ${path.parent.type}`);
+  }
+
+  if (parentPath.isTypeAlias() && parentKey === 'id') return 'flow';
+  if (parentPath.isInterfaceDeclaration() && parentKey === 'id') return 'flow';
+  if (parentPath.isGenericTypeAnnotation() && parentKey === 'id') return 'flow';
+  if (parentPath.isClassImplements() && parentKey === 'id') return 'flow';
+  if (parentPath.isFunctionTypeParam() && parentKey === 'name') return 'flow';
+  if (parentPath.isObjectTypeProperty() && parentKey === 'key') return 'flow';
+  if (parentPath.isObjectTypeIndexer() && parentKey === 'id') return 'flow';
+
+  if (parentPath.type === 'TSTypeReference' && parentKey === 'typeName') return 'typescript';
+  if (parentPath.type === 'TSInterfaceDeclaration' && parentKey === 'id') return 'typescript';
+  if (parentPath.type === 'TSEnumDeclaration' && parentKey === 'id') return 'typescript';
+  if (parentPath.type === 'TSTypeAliasDeclaration' && parentKey === 'id') return 'typescript';
+  if (parentPath.type === 'TSModuleDeclaration' && parentKey === 'id') return 'typescript';
+  if (path.type === 'TSTypeParameter') return 'typescript';
+  if (path.isJSXIdentifier()) return 'jsx';
+
+  return 'javascript';
+}
+
+module.exports = {
+  isIdentifierLike,
+  getIdentifierKind,
+  getIdentifierGrammar,
 };
