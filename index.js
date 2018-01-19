@@ -1,4 +1,5 @@
 'use strict';
+const astPrettyPrint = require('ast-pretty-print');
 
 /*::
 type Node = {
@@ -17,12 +18,13 @@ type Path = {
 type IdentifierKinds = 'reference' | 'binding' | 'static';
 */
 
-let isAssignmentTargetPattern = path => {
+let isAssignmentTargetPattern = (parentPath, parentKey) => {
   return (
-    path.isObjectPattern() ||
-    path.isArrayPattern() ||
-    path.isRestElement() ||
-    (path.isObjectProperty() && path.parentPath.isObjectPattern())
+    parentPath.isObjectPattern() ||
+    parentPath.isArrayPattern() ||
+    parentPath.isRestElement() ||
+    (parentPath.isObjectProperty() && parentPath.parentPath.isObjectPattern()) ||
+    parentPath.isAssignmentPattern() && parentKey === 'left'
   );
 };
 
@@ -30,6 +32,7 @@ exports.getIdentifierKind = (path /*: Path */) /*: IdentifierKinds */ => {
   let parentPath = path.parentPath;
   let parentKey = path.parentKey;
   let node = path.node;
+
 
   if (path.isIdentifier()) {
     if (
@@ -45,14 +48,16 @@ exports.getIdentifierKind = (path /*: Path */) /*: IdentifierKinds */ => {
       if (parentKey === 'value') return 'binding';
     }
 
-    if (isAssignmentTargetPattern(parentPath)) {
+    if (isAssignmentTargetPattern(parentPath, parentKey)) {
       let search = path;
+      let searchKey;
       do {
+        searchKey = search.parentKey;
         search = search.parentPath;
         if (search.isVariableDeclarator() || search.isFunction()) {
           return 'binding';
         }
-      } while (isAssignmentTargetPattern(search));
+      } while (isAssignmentTargetPattern(search, searchKey));
     }
 
     if (parentPath.isObjectProperty() || parentPath.isObjectMember()) {

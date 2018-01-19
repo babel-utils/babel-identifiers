@@ -140,6 +140,26 @@ const TESTS = [{
   code: 'function a(b, ...c) {}',
   result: ['a:binding', 'b:binding', 'c:binding'],
 }, {
+  name: 'function arg pattern',
+  plugins: ['flow'],
+  code: 'function a(b = c) {}',
+  result: ['a:binding', 'b:binding', 'c:reference'],
+}, {
+  name: 'function arg object pattern',
+  plugins: ['flow'],
+  code: 'function a({ b: c } = d) {}',
+  result: ['a:binding', 'b:static', 'c:binding', 'd:reference'],
+}, {
+  name: 'function arg object pattern',
+  plugins: ['flow'],
+  code: 'function a([b] = c) {}',
+  result: ['a:binding', 'b:binding', 'c:reference'],
+}, {
+  name: 'function arg deep object pattern',
+  plugins: ['flow'],
+  code: 'function a({ b: { c: { d } } } = e) {}',
+  result: ['a:binding', 'b:static', 'c:static', 'd:static', 'd:binding', 'e:reference'],
+}, {
   name: 'function expression',
   plugins: ['flow'],
   code: '(function a(b, ...c) {})',
