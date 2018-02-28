@@ -27,6 +27,10 @@ function parse(code, plugins) {
     }]
   });
 
+  if (!filePath) {
+    throw new Error('Something went wrong');
+  }
+
   return filePath;
 }
 
