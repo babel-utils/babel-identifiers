@@ -1,6 +1,4 @@
 'use strict';
-const astPrettyPrint = require('ast-pretty-print');
-
 const {getTypeBinding} = require('babel-type-scopes');
 
 /*::
